@@ -37,6 +37,19 @@ IChatClient chatClient = _config["AI:Provider"] == "Gemini"
 
 builder.Services.AddChatClient(chatClient);
 
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        //.WithOrigins("http://localhost:3000", "https://localhost:3000")
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+
+
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -44,6 +57,7 @@ builder.Services.AddOpenApi();
 // Registrar Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
@@ -56,6 +70,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthorization();
+app.UseCors("AllowAll");
 
 app.MapControllers();
 
