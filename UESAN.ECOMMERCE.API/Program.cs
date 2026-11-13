@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
+using Microsoft.OpenApi;
 using OllamaSharp;
 using UESAN.ECOMMERCE.CORE.Core.Interfaces;
 using UESAN.ECOMMERCE.CORE.Core.Services;
@@ -56,7 +57,23 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 // Registrar Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Introduzca el token JWT. Ejemplo: eyJhbGciOiJIUzI1NiIs..."
+    });
+
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document, null)] = []
+    });
+});
 
 
 var app = builder.Build();
@@ -69,6 +86,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("AllowAll");
 
